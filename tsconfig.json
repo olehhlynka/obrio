@@ -18,11 +18,17 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "obrio/database": [
-        "libs/database/src"
+      "@obrio/db": [
+        "libs/db/src"
       ],
-      "obrio/database/*": [
-        "libs/database/src/*"
+      "@obrio/db/*": [
+        "libs/db/src/*"
+      ],
+      "@orbio/rabbitmq": [
+        "libs/rabbitmq/src"
+      ],
+      "@orbio/rabbitmq/*": [
+        "libs/rabbitmq/src/*"
       ]
     }
   }

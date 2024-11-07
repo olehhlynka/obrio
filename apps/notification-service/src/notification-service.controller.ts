@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { NotificationServiceService } from './notification-service.service';
+import { Controller } from '@nestjs/common';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { NotificationService } from './notification-service.service';
 
 @Controller()
-export class NotificationServiceController {
-  constructor(private readonly notificationServiceService: NotificationServiceService) {}
+export class NotificationController {
+  constructor(private readonly notificationService: NotificationService) {}
 
-  @Get()
-  getHello(): string {
-    return this.notificationServiceService.getHello();
+  @EventPattern('user_created')
+  handleUserCreated(@Payload() data: { userId: number; createdAt: Date }) {
+    return this.notificationService.handleUserCreated(data);
   }
 }
