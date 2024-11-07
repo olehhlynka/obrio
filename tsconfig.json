@@ -29,6 +29,12 @@
       ],
       "@orbio/rabbitmq/*": [
         "libs/rabbitmq/src/*"
+      ],
+      "@obrio/constants": [
+        "libs/constants/src"
+      ],
+      "@obrio/constants/*": [
+        "libs/constants/src/*"
       ]
     }
   }

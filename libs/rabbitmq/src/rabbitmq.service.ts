@@ -1,39 +1,40 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import * as amqp from 'amqplib';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { Injectable } from '@nestjs/common';
+import { HOUR_IN_MS, NOTIFICATIONS_ROUTING_KEY } from '@obrio/constants';
 
 @Injectable()
-export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
-  private connection: amqp.Connection;
-  private channel: amqp.Channel;
+export class RabbitmqService {
+  constructor(private readonly amqpConnection: AmqpConnection) {}
 
   async onModuleInit() {
-    this.connection = await amqp.connect({
-      protocol: 'amqp',
-      hostname: process.env.RABBITMQ_HOST || 'localhost',
-      port: parseInt(process.env.RABBITMQ_PORT, 10) || 5672,
-      username: process.env.RABBITMQ_USER || 'guest',
-      password: process.env.RABBITMQ_PASSWORD || 'guest',
-    });
-    this.channel = await this.connection.createChannel();
-    console.log('Connected to RabbitMQ');
+    console.log('Connected to the rabbitmq');
   }
 
   async onModuleDestroy() {
-    await this.channel.close();
-    await this.connection.close();
-    console.log('Disconnected from RabbitMQ');
+    console.log('Disconnected from the rabbitmq');
   }
 
-  async sendToQueue(queue: string, message: unknown) {
-    await this.channel.assertQueue(queue, { durable: true });
-    return this.channel.sendToQueue(queue, Buffer.from(String(message)));
-  }
-
-  async consume(
-    queue: string,
-    callback: (msg: amqp.ConsumeMessage | null) => void,
+  async sendDelayedMessage(
+    exchange: string,
+    routingKey: string,
+    message: unknown,
+    delay: number,
   ) {
-    await this.channel.assertQueue(queue, { durable: true });
-    this.channel.consume(queue, callback, { noAck: true });
+    return this.amqpConnection.publish(exchange, routingKey, message, {
+      headers: {
+        'x-delay': delay,
+      },
+    });
+  }
+
+  async sendUserCreatedMessage(user: { id: string; name: string }) {
+    return this.amqpConnection.publish(
+      'delayed-exchange',
+      NOTIFICATIONS_ROUTING_KEY,
+      user,
+      {
+        headers: { 'x-delay': HOUR_IN_MS * 24 },
+      },
+    );
   }
 }

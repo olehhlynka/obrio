@@ -20,7 +20,7 @@ RUN pnpm install --frozen-lockfile
 COPY ./src ./src
 COPY ./tsconfig.json ./tsconfig.json
 COPY ./nest-cli.json ./nest-cli.json
-COPY ./libs ./libs 
+COPY ./libs ./libs
 
 # Build the application
 RUN pnpm run build

@@ -11,7 +11,6 @@ export class DbService implements OnModuleInit, OnModuleDestroy {
   constructor(@Inject('DB_POOL') private readonly pool: Pool) {}
 
   async onModuleInit() {
-    //await this.pool.connect();
     console.log('Connected to the database');
   }
 
@@ -22,5 +21,17 @@ export class DbService implements OnModuleInit, OnModuleDestroy {
 
   async query<T>(queryText: string, params: unknown[]) {
     return this.pool.query<T>(queryText, params);
+  }
+
+  async insertUser(name: string) {
+    const { rows } = await this.pool.query<{
+      id: string;
+      name: string;
+    }>(
+      `INSERT INTO users (name, created_at) VALUES ($1, NOW()) RETURNING id, name`,
+      [name],
+    );
+
+    return rows[0];
   }
 }

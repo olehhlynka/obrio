@@ -1,18 +1,20 @@
 import { Module } from '@nestjs/common';
 import { DbService } from './db.service';
 import { Pool } from 'pg';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   providers: [
     {
       provide: 'DB_POOL',
-      useFactory: () => {
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
         return new Pool({
-          user: process.env.DB_USER || 'user',
-          host: process.env.DB_HOST || 'localhost',
-          database: process.env.DB_NAME || 'users',
-          password: process.env.DB_PASSWORD || 'password',
-          port: parseInt(process.env.DB_PORT, 10) || 5432,
+          user: configService.get<string>('DB_USER'),
+          host: configService.get<string>('DB_HOST'),
+          database: configService.get<string>('DB_NAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          port: configService.get<number>('DB_PORT') || 5432,
         });
       },
     },
